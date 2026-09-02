@@ -3,12 +3,13 @@ const catchAsyncError = require("../middleware/catchAsyncError");
 const APIFeatures = require("../utils/APIFeatures");
 const ErrorHandler = require("../utils/ErrorHandler");
 const streamifier = require("streamifier");
+const connectDatabase = require("../config/dataBase");
 const cloudinary = require("cloudinary").v2;
 
 // Get All Property Listings (With Search & Filter)
 exports.getAllListings = catchAsyncError(async (req, res, next) => {
   // CRITICAL FOR VERCEL: Ensure database is connected before querying
-  await connectDatabase();
+  await connectDatabase()
 
   const resPerPage = 8;
   const listingsCount = await Listings.countDocuments();
