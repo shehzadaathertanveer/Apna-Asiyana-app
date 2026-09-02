@@ -1,87 +1,42 @@
-import React, { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
-import ProfileNavigationCard from "./ProfileNavigationCard";
-import MyPropertyCard from "./MyPropertyCard";
-import API from "../../api/axios";
+import React from "react";
+import { Link } from "react-router-dom";
+import { optimizeImage } from "../../utils/imageHelper" 
 
-function MyProperties() {
-  const { user } = useSelector((state) => state.auth);
-  const [myListings, setMyListings] = useState([]);
-  const [loading, setLoading] = useState(true);
+function MyPropertyCard({ property, onDelete }) {
+  const { _id, title, price, purpose, location, images } = property || {};
 
-  useEffect(() => {
-    const fetchMyListings = async () => {
-      try {
-        const response = await API.get("/me/listings");
-        setMyListings(response.data.listings || response.data || []);
-      } catch (err) {
-        console.error("Failed to fetch my properties:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchMyListings();
-  }, []);
-
-  const handleDeleteProperty = (deletedId) => {
-    setMyListings((prev) => prev.filter((item) => item._id !== deletedId));
-  };
+  const rawImageUrl = images?.[0]?.url || "/placeholder.jpg";
+  const imageUrl = optimizeImage(rawImageUrl, 600); // Optimized for speed
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-400 via-teal-50 to-emerald-200 p-3 sm:p-6 md:p-8">
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 max-w-7xl mx-auto">
-        
-        {/* Navigation Sidebar */}
-        <div className="md:col-span-1">
-          <ProfileNavigationCard />
-        </div>
+    <div className="bg-white/75 backdrop-blur-md border border-white/65 text-slate-800 rounded-2xl p-4 shadow-md flex flex-col justify-between gap-3">
+      <Link to={`/listing/${_id}`} className="relative w-full h-40 rounded-xl overflow-hidden bg-slate-200 block group">
+        <img
+          src={imageUrl}
+          alt={title || "Property"}
+          loading="lazy" // Lazy loading for speed
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+        />
+        <span className="absolute top-2 left-2 bg-emerald-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">
+          For {purpose || "Sale"}
+        </span>
+      </Link>
 
-        {/* Main Properties Area */}
-        <div className="md:col-span-3 flex flex-col gap-6">
-          
-          {/* Header */}
-          <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-2xl p-6 shadow-xl flex justify-between items-center flex-wrap gap-4">
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-slate-800">
-                My Properties
-              </h1>
-              <p className="text-xs sm:text-sm text-slate-500 mt-1">
-                Manage and view all your posted property listings.
-              </p>
-            </div>
-            <span className="text-xs font-semibold px-3 py-1.5 bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-full">
-              {myListings.length} {myListings.length === 1 ? "Property" : "Properties"} Listed
-            </span>
-          </div>
-
-          {loading ? (
-            <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-2xl p-12 text-center text-emerald-800 font-semibold animate-pulse shadow-xl">
-              Loading your properties...
-            </div>
-          ) : myListings.length === 0 ? (
-            <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-2xl p-12 text-center text-slate-600 shadow-xl flex flex-col items-center gap-3">
-              <span className="text-4xl">🏠</span>
-              <p className="text-base font-semibold text-slate-700">No properties posted yet.</p>
-              <p className="text-xs text-slate-500">When you list a property, it will show up here.</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-              {myListings.map((property) => (
-                <MyPropertyCard
-                  key={property._id}
-                  property={property}
-                  onDelete={handleDeleteProperty}
-                />
-              ))}
-            </div>
-          )}
-
-        </div>
-
+      <div className="flex flex-col gap-1">
+        <h3 className="text-base font-bold text-emerald-700">
+          PKR {price ? price.toLocaleString() : "N/A"}
+        </h3>
+        <h4 className="text-xs font-semibold text-slate-800 line-clamp-1">
+          {title || "Untitled Property"}
+        </h4>
+        <p className="text-[11px] text-slate-500">
+          📍 {location?.city || "Pakistan"}
+        </p>
       </div>
+
+      {/* Add your edit/delete buttons here if they are part of this card */}
     </div>
   );
 }
 
-export default MyProperties;
+export default MyPropertyCard;

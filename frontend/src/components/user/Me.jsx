@@ -1,9 +1,13 @@
 import React from "react";
 import { useSelector } from "react-redux";
 import ProfileNavigationCard from "./ProfileNavigationCard";
+import { optimizeImage } from "../../utils/imageHelper";
 
 function Me() {
   const { user } = useSelector((state) => state.auth);
+
+  // 2. Optimize user avatar for profile banner (width 200px)
+  const avatarUrl = user?.avatar?.url ? optimizeImage(user.avatar.url, 200) : null;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-400 via-teal-50 to-emerald-200 p-3 sm:p-6 md:p-8">
@@ -36,10 +40,11 @@ function Me() {
             {/* Profile Overview Banner */}
             <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 bg-white/60 p-5 rounded-2xl border border-slate-200/80 shadow-sm">
               <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center text-2xl sm:text-3xl overflow-hidden shadow-lg border-2 border-emerald-500 shrink-0">
-                {user?.avatar?.url ? (
+                {avatarUrl ? (
                   <img
-                    src={user.avatar.url}
+                    src={avatarUrl}
                     alt={user.firstName}
+                    loading="lazy"
                     className="w-full h-full object-cover"
                   />
                 ) : (

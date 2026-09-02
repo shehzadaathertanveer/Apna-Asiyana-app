@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import API from "../../api/axios";
+import { optimizeImage } from "../../utils/imageHelper";
 
 function ListingDetails() {
   const { id } = useParams();
@@ -77,7 +78,6 @@ function ListingDetails() {
 
   const { title, price, description, purpose, propertyType, location, features, images = [], user, owner } = listing;
 
-  // Resolves seller/agent data across different backend object schemas
   const seller = owner || user || {};
   const sellerName = seller.firstName 
     ? `${seller.firstName} ${seller.lastName || ""}` 
@@ -95,7 +95,9 @@ function ListingDetails() {
     setActiveImg((prev) => (prev - 1 + images.length) % images.length);
   };
 
-  const activeImageUrl = images?.[activeImg]?.url || images?.[activeImg] || "/placeholder.jpg";
+  const rawActiveUrl = images?.[activeImg]?.url || images?.[activeImg] || "/placeholder.jpg";
+  // 2. Optimize main viewer image (Width 1000px for crisp detail)
+  const activeImageUrl = optimizeImage(rawActiveUrl, 1000);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-100 via-teal-50 to-slate-100 p-3 sm:p-6 md:p-8">
@@ -134,6 +136,7 @@ function ListingDetails() {
               <img
                 src={activeImageUrl}
                 alt={title || "Property Image"}
+                loading="lazy"
                 className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-300"
               />
 
@@ -176,24 +179,28 @@ function ListingDetails() {
 
             {images.length > 1 && (
               <div className="flex gap-2 overflow-x-auto pb-1 pt-0.5">
-                {images.map((img, index) => (
-                  <button
-                    key={index}
-                    type="button"
-                    onClick={() => setActiveImg(index)}
-                    className={`relative min-w-[60px] sm:min-w-[70px] h-14 sm:h-16 rounded-lg overflow-hidden border-2 transition-all flex-shrink-0 cursor-pointer ${
-                      activeImg === index
-                        ? "border-emerald-600 scale-95 shadow-md"
-                        : "border-transparent opacity-60 hover:opacity-100"
-                    }`}
-                  >
-                    <img
-                      src={img?.url || img}
-                      alt={`Thumbnail ${index + 1}`}
-                      className="w-full h-full object-cover"
-                    />
-                  </button>
-                ))}
+                {images.map((img, index) => {
+                  const thumbUrl = optimizeImage(img?.url || img, 200); // 3. Optimize thumbnails to tiny file sizes
+                  return (
+                    <button
+                      key={index}
+                      type="button"
+                      onClick={() => setActiveImg(index)}
+                      className={`relative min-w-[60px] sm:min-w-[70px] h-14 sm:h-16 rounded-lg overflow-hidden border-2 transition-all flex-shrink-0 cursor-pointer ${
+                        activeImg === index
+                          ? "border-emerald-600 scale-95 shadow-md"
+                          : "border-transparent opacity-60 hover:opacity-100"
+                      }`}
+                    >
+                      <img
+                        src={thumbUrl}
+                        alt={`Thumbnail ${index + 1}`}
+                        loading="lazy"
+                        className="w-full h-full object-cover"
+                      />
+                    </button>
+                  );
+                })}
               </div>
             )}
           </div>
@@ -224,7 +231,6 @@ function ListingDetails() {
                 </div>
               </div>
 
-              {/* Display phone number explicitly + phone action button */}
               {sellerPhone ? (
                 <div className="flex flex-col gap-2">
                   <div className="bg-emerald-50/80 border border-emerald-200 rounded-xl p-2.5 text-center">
@@ -299,8 +305,9 @@ function ListingDetails() {
 
           <div className="relative max-w-5xl max-h-[85vh] w-full flex justify-center items-center">
             <img
-              src={activeImageUrl}
+              src={optimizeImage(rawActiveUrl, 1200)} // Fullscreen high resolution preview
               alt="Fullscreen View"
+              loading="lazy"
               className="max-w-full max-h-[80vh] object-contain rounded-xl shadow-2xl"
             />
 

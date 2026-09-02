@@ -1,11 +1,15 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { optimizeImage } from "../../utils/imageHelper";
 
 function PropertyCard({ property }) {
   const { _id, title, price, purpose, location, images } = property || {};
 
   // Target the .url property inside the first object of the array
-  const imageUrl = images?.[0]?.url || "/placeholder.jpg";
+  const rawImageUrl = images?.[0]?.url || "/placeholder.jpg";
+  
+  // 2. Optimize the image URL for lightning-fast loading (max width 600px)
+  const imageUrl = optimizeImage(rawImageUrl, 600);
 
   return (
     <Link
@@ -16,6 +20,7 @@ function PropertyCard({ property }) {
         <img
           src={imageUrl}
           alt={title || "Property Image"}
+          loading="lazy" // 3. Prevents loading off-screen images all at once
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
         />
         <span className="absolute top-2.5 left-2.5 bg-emerald-600 text-white text-xs font-semibold px-2.5 py-1 rounded-full shadow-sm">

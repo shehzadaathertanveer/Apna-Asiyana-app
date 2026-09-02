@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import ProfileNavigationCard from "../user/ProfileNavigationCard";
 import API from "../../api/axios";
+import { optimizeImage } from "../../utils/imageHelper";
 
 function AllUsers() {
   const [users, setUsers] = useState([]);
@@ -68,7 +69,7 @@ function AllUsers() {
     if (!userToUpdateRole?._id) return;
     setUpdatingRole(true);
     try {
-      const res = await API.put(`/admin/user/${userToUpdateRole._id}`, { role: selectedRole });
+      await API.put(`/admin/user/${userToUpdateRole._id}`, { role: selectedRole });
       
       // Update local state instantly
       setUsers((prev) =>
@@ -128,6 +129,9 @@ function AllUsers() {
                 const email = user.email || "No email";
                 const phone = user.phoneNumber || user.phone || user.contactNumber || "No phone provided";
 
+                // 2. Optimize user avatar for small grid view (width 150px)
+                const avatarUrl = user.avatar?.url ? optimizeImage(user.avatar.url, 150) : null;
+
                 return (
                   <div
                     key={user._id || Math.random()}
@@ -135,10 +139,11 @@ function AllUsers() {
                   >
                     <div className="flex items-start gap-3">
                       <div className="w-11 h-11 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center text-sm overflow-hidden shadow-md shrink-0 border border-emerald-500">
-                        {user.avatar?.url ? (
+                        {avatarUrl ? (
                           <img
-                            src={user.avatar.url}
+                            src={avatarUrl}
                             alt={firstName}
+                            loading="lazy"
                             className="w-full h-full object-cover"
                           />
                         ) : (
@@ -234,7 +239,12 @@ function AllUsers() {
             <div className="flex items-center gap-3">
               <div className="w-14 h-14 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center text-lg overflow-hidden shrink-0 shadow-md">
                 {selectedUser.avatar?.url ? (
-                  <img src={selectedUser.avatar.url} alt={selectedUser.firstName || "User"} className="w-full h-full object-cover" />
+                  <img 
+                    src={optimizeImage(selectedUser.avatar.url, 200)} // 3. Optimized modal avatar size
+                    alt={selectedUser.firstName || "User"} 
+                    loading="lazy"
+                    className="w-full h-full object-cover" 
+                  />
                 ) : (
                   `${selectedUser.firstName?.[0] || ""}${selectedUser.lastName?.[0] || ""}`.toUpperCase()
                 )}
