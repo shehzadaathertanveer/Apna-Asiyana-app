@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import API from "../../api/axios";
-import PropertyCard from "./PropertyCard"; 
+import PropertyCard from "./propertyCard"; 
 
 function AllListings() {
   const [search, setSearch] = useState("");
