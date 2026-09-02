@@ -1,0 +1,20 @@
+$kind: http-request
+name: register
+url: http://localhost:5000/api/v1/register
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \  \"firstName\": \"Hamza\",\r
+
+    \  \"lastName\": \"Ali\",\r
+
+    \  \"email\": \"hamza.admin@example.com\",\r
+
+    \  \"password\": \"AdminPassword@123\",\r
+
+    \  \"phoneNumber\": \"03335557788\"\r
+
+    }"
+order: 1787918813666

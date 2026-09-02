@@ -1,0 +1,5 @@
+$kind: http-request
+name: user profile
+url: http://localhost:5000/api/v1/me
+method: GET
+order: 3748795907470768

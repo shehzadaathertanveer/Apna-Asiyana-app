@@ -1,0 +1,14 @@
+$kind: http-request
+name: login
+url: http://localhost:5000/api/v1/login
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \    \"email\":\"shehzadaathertanvir@gmail.com\",\r
+
+    \    \"password\":\"00000000\"\r
+
+    }"
+order: 283641489147850
