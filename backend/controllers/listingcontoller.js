@@ -7,6 +7,9 @@ const cloudinary = require("cloudinary").v2;
 
 // Get All Property Listings (With Search & Filter)
 exports.getAllListings = catchAsyncError(async (req, res, next) => {
+  // CRITICAL FOR VERCEL: Ensure database is connected before querying
+  await connectDatabase();
+
   const resPerPage = 8;
   const listingsCount = await Listings.countDocuments();
 
