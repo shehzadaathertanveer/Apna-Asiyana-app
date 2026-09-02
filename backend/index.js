@@ -16,7 +16,9 @@ dotenv.config({ path: "config/config.env" });
 connectToDataBase();
 connectToCloudinary();
 
-
+app.get('/', (req, res) => {
+  res.send('Backend is alive and working!');
+});
 //starting server
 const server = app.listen(process.env.PORT, () => {
   console.log(`server started at port: ${process.env.PORT}`);
